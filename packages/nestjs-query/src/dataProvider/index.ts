@@ -443,15 +443,13 @@ const dataProvider = (client: GraphQLClient): Required<DataProvider> => {
             };
         },
         getApiUrl: () => {
-            // client.url is private, so we need to use ts-ignore to access it. This is a temporary solution until we find a better way to access it.
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            return client?.url;
+            return getUrlFromClient(client);
         },
-        custom: async ({ url, method, headers, meta }) => {
-            if (url) {
-                client.setEndpoint(url);
-            }
+        custom: async ({ url: urlFromProp, method, headers, meta }) => {
+            const defaultUrl = getUrlFromClient(client);
+            const url = urlFromProp ?? defaultUrl;
+
+            client.setEndpoint(url);
 
             if (headers) {
                 client.setHeaders(headers);
@@ -465,6 +463,7 @@ const dataProvider = (client: GraphQLClient): Required<DataProvider> => {
                     meta?.variables ?? {},
                 );
 
+                client.setEndpoint(defaultUrl);
                 return { data: response };
             }
 
@@ -474,6 +473,7 @@ const dataProvider = (client: GraphQLClient): Required<DataProvider> => {
                     meta.variables,
                 );
 
+                client.setEndpoint(defaultUrl);
                 return { data: response };
             }
 
@@ -506,19 +506,29 @@ const dataProvider = (client: GraphQLClient): Required<DataProvider> => {
                         variables,
                     );
 
+                    client.setEndpoint(defaultUrl);
                     return {
                         data: response[meta.operation],
                     };
                 } else {
+                    client.setEndpoint(defaultUrl);
                     throw Error("GraphQL operation name required.");
                 }
             } else {
+                client.setEndpoint(defaultUrl);
                 throw Error(
                     "GraphQL needs operation, fields and variables values in meta object.",
                 );
             }
         },
     };
+};
+
+const getUrlFromClient = (client: GraphQLClient) => {
+    // client.url is private, so we need to use ts-ignore to access it. This is a temporary solution until we find a better way to access it.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return client.url;
 };
 
 export default dataProvider;
