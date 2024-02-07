@@ -1,4 +1,4 @@
-import { useCustom } from "@refinedev/core";
+import { useApiUrl, useCustom } from "@refinedev/core";
 
 import { Col, Row } from "antd";
 
@@ -13,9 +13,10 @@ import {
 import { DASHBOARD_TOTAL_COUNTS_QUERY } from "./queries";
 
 export const DashboardPage = () => {
+  const apiUrl = useApiUrl();
   const { data, isLoading } = useCustom<DashboardTotalCountsQuery>({
-    url: "",
-    method: "get",
+    url: apiUrl,
+    method: "post",
     meta: { gqlQuery: DASHBOARD_TOTAL_COUNTS_QUERY },
   });
 

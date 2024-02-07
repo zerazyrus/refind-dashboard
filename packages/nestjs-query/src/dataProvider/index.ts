@@ -443,9 +443,10 @@ const dataProvider = (client: GraphQLClient): Required<DataProvider> => {
             };
         },
         getApiUrl: () => {
-            throw Error(
-                "Not implemented on refine-nestjs-query data provider.",
-            );
+            // client.url is private, so we need to use ts-ignore to access it. This is a temporary solution until we find a better way to access it.
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return client?.url;
         },
         custom: async ({ url, method, headers, meta }) => {
             if (url) {
